@@ -1,0 +1,19 @@
+name: daily-push
+on:
+  schedule:
+    - cron: '0 1 * * *'    # 매일 01:00 UTC = 10:00 KST
+  workflow_dispatch:
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm init -y >/dev/null 2>&1 && npm i web-push@3 >/dev/null 2>&1
+      - run: node scripts/send-push.js
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
+          VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
