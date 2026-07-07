@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>주간 영어 표현</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="영어표현">
 <style>
   :root{ --bg:#f4f6f9; --card:#ffffff; --line:#e3e7ee; --txt:#1b2130; --sub:#6b7482;
          --pp:#7c3aed; --ppbg:#f2ebff; --pptx:#6d28d9;
@@ -111,6 +115,10 @@
 
   <div id="tab-study">
     <div class="subttl" id="weekLabel"></div>
+    <div class="card" id="notifCard" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div style="font-size:13.5px;color:var(--sub);line-height:1.4;">매일 알림 받기<br><span style="font-size:11.5px;">아이폰: 공유 → 홈 화면에 추가 후 아이콘으로 열어 켜세요</span></div>
+      <button id="notifBtn" class="cbtn" style="flex:0 0 auto;max-width:150px;padding:12px;">🔔 알림 켜기</button>
+    </div>
     <div class="sec">이번 주 표현 3개 (월요일 자동 리셋)</div>
     <div id="words"></div>
     <div class="sec">오늘 완료 체크</div>
@@ -324,6 +332,36 @@ $('#pvToggle').onclick=()=>{
   $('#pvToggle').innerHTML='다음 주 표현 미리보기 '+(open?'▼':'▲');
 };
 
+const VAPID_PUBLIC="BHmM-uGEir8XPz8wZFQN8gTDD1icJWIXcFVD-OK6FtY38zcD3OC1RAfldCVoca9snq1cWPbpWunbUSLUskP3JzU";
+function urlB64ToU8(base64){const pad="=".repeat((4-base64.length%4)%4);const b=(base64+pad).replace(/-/g,"+").replace(/_/g,"/");const raw=atob(b);const arr=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);return arr;}
+async function enableNotif(){
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
+    alert("이 환경에서는 웹푸시를 쓸 수 없습니다.\n아이폰은 Safari 공유 → \"홈 화면에 추가\" 후, 홈 화면 아이콘으로 열어 다시 시도하세요.");return;}
+  try{
+    const reg=await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    const perm=await Notification.requestPermission();
+    if(perm!=="granted"){alert("알림 권한이 허용되지 않았습니다.");return;}
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToU8(VAPID_PUBLIC)});
+    const j=sub.toJSON();
+    const id=""+hashStr(j.endpoint);
+    if(SHARED)await fetch(`${DB_URL}/pushSubs/${id}.json`,{method:"PUT",body:JSON.stringify({sub:j,ts:Date.now()})});
+    const btn=document.getElementById("notifBtn");
+    btn.textContent="🔔 알림 켜짐";btn.classList.add("done");
+    setTimeout(()=>{try{reg.showNotification("📚 알림이 켜졌어요",{body:"매일 이 시간대에 리마인드를 보냅니다.",icon:"icon-192.png"});}catch(_){}},400);
+  }catch(e){alert("알림 설정 실패: "+(e&&e.message||e));}
+}
+function setupNotif(){
+  const btn=document.getElementById("notifBtn");
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)){
+    btn.textContent="미지원";btn.disabled=true;btn.style.opacity=".5";return;}
+  navigator.serviceWorker.register("sw.js").then(async reg=>{
+    const s=await reg.pushManager.getSubscription();
+    if(s&&Notification.permission==="granted"){btn.textContent="🔔 알림 켜짐";btn.classList.add("done");}
+  }).catch(()=>{});
+  btn.onclick=enableNotif;
+}
 async function init(){
   $('#weekLabel').textContent=`${wk.year}년 ${wk.week}주차 · ${now.getMonth()+1}월 ${now.getDate()}일 (${DOW[today]})`;
   $('#todayLabel').textContent=`오늘: ${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()} (${DOW[today]})  —  각자 하루 1회 체크`;
@@ -334,6 +372,7 @@ async function init(){
   renderWords(); renderPreview();
   state=await loadWeek(wk.key);
   renderStudy();
+  setupNotif();
 }
 init();
 </script>
