@@ -1,4 +1,4 @@
-# 주간 영어 표현 (Weekly English Expressions)
+# Daily English (Weekly English Expressions)
 
 구글시트 YYMMDD_ 탭에서 **보라색으로 표시된 단어/표현 298개**를 추출해 만든 주간 학습 웹앱입니다.
 

@@ -1,7 +1,7 @@
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('push', e => {
-  let d = { title: '📚 주간 영어 표현', body: '오늘의 표현 3개를 확인하세요 👉', url: './' };
+  let d = { title: '📚 Daily English', body: '오늘의 표현 3개를 확인하세요 👉', url: './' };
   try { if (e.data) d = Object.assign(d, e.data.json()); } catch (_) {}
   e.waitUntil(self.registration.showNotification(d.title, {
     body: d.body, icon: 'icon-192.png', badge: 'icon-192.png', data: { url: d.url }
