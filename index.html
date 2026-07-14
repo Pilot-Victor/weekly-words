@@ -119,7 +119,7 @@
       <div style="font-size:13.5px;color:var(--sub);line-height:1.4;">매일 알림 받기<br><span style="font-size:11.5px;">아이폰: 공유 → 홈 화면에 추가 후 아이콘으로 열어 켜세요</span></div>
       <button id="notifBtn" class="cbtn" style="flex:0 0 auto;max-width:150px;padding:12px;">🔔 알림 켜기</button>
     </div>
-    <div class="sec">이번 주 표현 3개 (월요일 자동 리셋)</div>
+    <div class="sec">이번 주 표현 5개 (월요일 자동 리셋)</div>
     <div id="words"></div>
     <div class="sec">오늘 완료 체크</div>
     <div class="card">
@@ -222,7 +222,7 @@ function highlight(ex,w){
 }
 function fmtDate(d){return d.replace(/(\d\d)(\d\d)(\d\d)/,'$1.$2.$3');}
 function renderWords(){
-  const ws=pickWeekly(wk.key,3);
+  const ws=pickWeekly(wk.key,5);
   $('#words').innerHTML=ws.map((w,i)=>`
     <div class="card wcard" data-i="${i}">
       <span class="wtag">${w.p} · ${fmtDate(w.d)}</span>
@@ -241,7 +241,7 @@ function renderWords(){
   });
 }
 function renderPreview(){
-  $('#preview').innerHTML=pickWeekly(nextWk.key,3).map(w=>`
+  $('#preview').innerHTML=pickWeekly(nextWk.key,5).map(w=>`
     <div class="pvcard"><div class="pvword">${esc(w.w)}</div>
       ${w.m?`<div class="pvmean">${esc(w.m)}</div>`:''}</div>`).join('')
     +`<div class="subttl" style="margin:2px 2px 0">${nextWk.year}년 ${nextWk.week}주차 · 월요일부터 적용</div>`;
@@ -368,7 +368,7 @@ async function init(){
   $('#banner').className='banner '+(SHARED?'shared':'local');
   $('#banner').textContent=SHARED?'🔗 공유 저장 켜짐 — 규영·병찬 체크가 함께 반영됩니다.'
     :'⚠️ 로컬 저장 모드 — 이 기기에만 기록됩니다.';
-  $('#foot').innerHTML='표현 '+WORDS.length+'개 풀에서 매주 랜덤 3개 · 월요일 자동 리셋';
+  $('#foot').innerHTML='표현 '+WORDS.length+'개 풀에서 매주 랜덤 5개 · 월요일 자동 리셋';
   renderWords(); renderPreview();
   state=await loadWeek(wk.key);
   renderStudy();

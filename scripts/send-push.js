@@ -14,7 +14,7 @@ const APP_URL = 'https://pilot-victor.github.io/weekly-words/';
   const ids = Object.keys(subs);
   const payload = JSON.stringify({
     title: '📚 Daily English',
-    body: '오늘의 표현 3개 학습하고 완료 체크하세요 👉',
+    body: '오늘의 표현 5개 학습하고 완료 체크하세요 👉',
     url: APP_URL
   });
   let ok = 0, gone = 0;
